@@ -186,28 +186,47 @@ def renameDir(sdir,replacestr,tostr,exittype):
 
 import serial
 
-
+def getComPort():
+    cmd = '/bin/ls /dev/cu.usbmodem*'
+    # devs = os.system('/bin/ls /dev/cu.usb*')
+    devs=os.popen(cmd).readlines()
+    if len(devs) > 1:
+        print('dev heave more')
+    elif devs:
+        print(devs)
+        dev = devs[0].replace('\n','')
+        return dev
+    else:
+        print('not find usb comport')
 def repeat():
-    t = serial.Serial('/dev/cu.usbmodem14121',115200,timeout=0.5)
-    print t.portstr
-    strInput = raw_input('enter any words to start repeat:')
-    while True:
-        time.sleep(0.5)
-        n = t.write('1')
-        n = t.inWaiting()
-        print n
-        str = t.read(n)
-        print str
+    dev  = getComPort()
+    if dev:
+        t = serial.Serial(dev,115200,timeout=0.5)
+        print t.portstr
+        strInput = raw_input('enter any words to start repeat:')
+        while True:
+            time.sleep(0.5)
+            n = t.write('1')
+            n = t.inWaiting()
+            print n
+            str = t.read(n)
+            print str
+    else:
+        print('not heave usb comport')
 def unrepeat():
-    t = serial.Serial('/dev/cu.usbmodem14121',115200,timeout=0.5)
-    print t.portstr
-    while True:
-        strInput = raw_input('enter some words:')
-        n = t.write(strInput)
-        n = t.inWaiting()
-        print n
-        str = t.read(n)
-        print str
+    dev  = getComPort()
+    if dev:
+        t = serial.Serial(dev,115200,timeout=0.5)
+        print t.portstr
+        while True:
+            strInput = raw_input('enter some words:')
+            n = t.write(strInput)
+            n = t.inWaiting()
+            print n
+            str = t.read(n)
+            print str
+    else:
+        print('not heave usb comport')
 
 def main(isRepeat = False):
     if isRepeat:
@@ -215,6 +234,22 @@ def main(isRepeat = False):
     else:
         unrepeat()
 
+def getComList():
+    #windows sre port
+    #https://blog.csdn.net/u014647208/article/details/77946416
+    #mac sre port
+    # https://github.com/pyserial/pyserial/issues/32
+    #https://blog.csdn.net/wangkss/article/details/74504802
+    from serial.tools import list_ports
+    plist = list(list_ports.comports())
+    devices = []
+    for p in plist:
+        print(p.name,p.device,p.hwid,p.vid,p.pid,p.serial_number,p.interface,p.product,p.location,p.manufacturer)
+        devices.append(p.device)
+    return devices
+def test():
+    devices = getComList()
+    print(devices)
 
 #测试
 if __name__ == '__main__':
@@ -223,4 +258,5 @@ if __name__ == '__main__':
         main(isRepeat = True)
     else:
         main()
+        # test()
     
