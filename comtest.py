@@ -6,7 +6,7 @@
 # @Version : $Id$
 
 import os,sys
-
+import time
 
 #获取脚本路径
 def cur_file_dir():
@@ -185,10 +185,21 @@ def renameDir(sdir,replacestr,tostr,exittype):
         replaceFileName(p[0], p[1], replacestr, tostr)
 
 import serial
-def main():
 
- 
-    t = serial.Serial('/dev/cu.usbmodem14141',115200,timeout=0.5)
+
+def repeat():
+    t = serial.Serial('/dev/cu.usbmodem14121',115200,timeout=0.5)
+    print t.portstr
+    strInput = raw_input('enter any words to start repeat:')
+    while True:
+        time.sleep(0.5)
+        n = t.write('1')
+        n = t.inWaiting()
+        print n
+        str = t.read(n)
+        print str
+def unrepeat():
+    t = serial.Serial('/dev/cu.usbmodem14121',115200,timeout=0.5)
     print t.portstr
     while True:
         strInput = raw_input('enter some words:')
@@ -198,20 +209,18 @@ def main():
         str = t.read(n)
         print str
 
-
-
+def main(isRepeat = False):
+    if isRepeat:
+        repeat()
+    else:
+        unrepeat()
 
 
 #测试
 if __name__ == '__main__':
-    main()
-    # args = sys.argv
-    # fpth = ''
-    # if len(args) == 2 :
-    #     if os.path.exists(args[1]):
-    #         fpth = args[1]
-    #     else:
-    #         print "请加上要转码的文件路径"
-    # else:
-    #     print "请加上要转码的文件路径"
+    args = sys.argv
+    if len(args) == 2 :
+        main(isRepeat = True)
+    else:
+        main()
     
